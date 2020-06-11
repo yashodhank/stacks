@@ -11,7 +11,7 @@ services:
     deploy:
       mode: global
     networks:
-      - agent_network
+      - internal
 
   portainer:
     image: portainer/portainer:${VERSION:-1.24.0}
@@ -20,20 +20,25 @@ services:
       - ${VOLUME_PATH}portainer:/data
     deploy:
       labels:
-        - traefik.port=9000
-        - traefik.frontend.rule=Host:${DOMAIN:-portainer.localhost}
         - traefik.enable=true
+        - traefik.http.routers.portainer-${NUMBER:-1}.rule=Host(`${DOMAIN:-portainer.localhost}`)
+        - traefik.http.routers.portainer-${NUMBER:-1}.entrypoints=${SCHEME:-http}
+        - traefik.http.routers.portainer-${NUMBER:-1}.service=portainer-${NUMBER:-1}
+        - traefik.http.routers.portainer-${NUMBER:-1}.middlewares=portainer-${NUMBER:-1}
+        - traefik.http.services.portainer-${NUMBER:-1}.loadbalancer.server.port=9000
+        - traefik.http.middlewares.portainer-${NUMBER:-1}.headers.customRequestHeaders.X-Forwarded-Port=443
+        - traefik.http.middlewares.portainer-${NUMBER:-1}.headers.customRequestHeaders.X-Forwarded-Proto=${SCHEME:-http}
       mode: replicated
       replicas: 1
     networks:
-      - agent_network
+      - internal
       - traefik
 
 volumes:
   portainer:
 
 networks:
-  agent_network:
+  internal:
     driver: overlay
     attachable: true
   traefik:

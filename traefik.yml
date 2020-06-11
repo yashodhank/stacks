@@ -1,27 +1,20 @@
-version: "3.7"
+version: '3.8'
 
 services:
   traefik:
-    image: traefik:${VERSION:-v1.7.24-alpine}
-    ports:
-      - target: 80 # http://bit.ly/2SfiOhk
-        published: 80
-        protocol: tcp
-        mode: host
+    image: traefik:${VERSION:-v2.2.1}
     command:
-      # - --debug
-      # - --loglevel=INFO
-      - --entryPoints=Name:http Address::80 Compress:true
-      - --defaultEntryPoints=http
-      - --docker.swarmmode=true
-      - --docker.exposedbydefault=true
-      - --docker.network=traefik-net
+      # - --log.level=DEBUG
+      - --providers.docker
+      - --providers.docker.network=traefik-net
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.swarmMode=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --entrypoints.http.address=:80
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    deploy:
-      mode: ${MODE:-replicated}
-      placement:
-        constraints: [node.role==manager]
+    ports:
+      - { target: 80, published: 80, mode: host, protocol: tcp }
 
 networks:
   default:
