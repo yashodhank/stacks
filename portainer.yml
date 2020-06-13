@@ -34,8 +34,16 @@ services:
       - internal
       - traefik
 
+  templates:
+    image: nginx:alpine
+    volumes:
+      - ${VOLUME_PATH}templates:/usr/share/nginx/html/
+    networks:
+      - internal
+
 volumes:
   portainer:
+  templates:
 
 networks:
   internal:
