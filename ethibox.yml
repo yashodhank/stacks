@@ -1,0 +1,76 @@
+version: '3.7'
+
+x-defaults: &defaults
+  image: registry.ethibox.fr/ethibox:${VERSION:-latest}
+  volumes:
+    - ${VOLUME_PATH}data:/app/prisma:cached
+  environment:
+    - NODE_ENV=production
+    - MYSQL_DATABASE=ethibox
+    - MYSQL_USER=ethibox
+    - MYSQL_PASSWORD=${MYSQL_PASSWORD:-myp@ssw0rd}
+    - MYSQL_HOST=mariadb
+    - PORTAINER_ENDPOINT=${PORTAINER_ENDPOINT:-http://portainer.localhost}
+    - PORTAINER_USERNAME=${PORTAINER_USERNAME:-admin}
+    - PORTAINER_PASSWORD=${PORTAINER_PASSWORD:-myp@ssw0rd}
+    - ENABLE_MIGRATIONS=true
+    - SECRET=${SECRET}
+
+services:
+  web:
+    <<: *defaults
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.ethibox-${NUMBER:-1}.rule=Host(`${DOMAIN:-ethibox.localhost}`)
+        - traefik.http.routers.ethibox-${NUMBER:-1}.entrypoints=${SCHEME:-http}
+        - traefik.http.routers.ethibox-${NUMBER:-1}.service=ethibox-${NUMBER:-1}
+        - traefik.http.routers.ethibox-${NUMBER:-1}.middlewares=ethibox-${NUMBER:-1}
+        - traefik.http.services.ethibox-${NUMBER:-1}.loadbalancer.server.port=3000
+        - traefik.http.middlewares.ethibox-${NUMBER:-1}.headers.customRequestHeaders.X-Forwarded-Port=443
+        - traefik.http.middlewares.ethibox-${NUMBER:-1}.headers.customRequestHeaders.X-Forwarded-Proto=${SCHEME:-http}
+    networks:
+      - internal
+      - traefik
+
+  cron:
+    <<: *defaults
+    command: node cron.js
+    networks:
+      - internal
+
+  mariadb:
+    image: mariadb:10.3.14
+    volumes:
+      - ${VOLUME_PATH}mariadb:/var/lib/mysql:cached
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD:-myp@ssw0rd}
+      - MYSQL_DATABASE=ethibox
+      - MYSQL_USER=ethibox
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-myp@ssw0rd}
+    networks:
+      - internal
+
+  # adminer:
+    # image: adminer:4.7.6
+    # deploy:
+      # labels:
+        # - traefik.port=8080
+        # - traefik.enable=true
+        # - traefik.frontend.rule=Host:${ADMINER_DOMAIN:-adminer.localhost}
+        # - traefik.frontend.auth.basic=${BASIC_AUTH:?err}
+    # networks:
+      # - internal
+      # - traefik
+
+volumes:
+  mariadb:
+  data:
+
+networks:
+  internal:
+    driver: overlay
+    attachable: true
+  traefik:
+    external: true
+    name: traefik-net
