@@ -56,6 +56,7 @@ services:
         - traefik.http.routers.dashboard.entrypoints=traefik
         - traefik.http.routers.dashboard.service=api@internal
         - traefik.http.routers.dashboard.middlewares=auth@docker
+        - traefik.http.services.dummy-svc.loadbalancer.server.port=8081
         
         # Basic Authentication for Traefik Dashboard | htpasswd -nbB admin password
         - traefik.http.middlewares.auth.basicauth.users=traefik-admin:$2y$05$ygqIFYgORdwvOMUkTzAJL.jwUu1DQcZKz92k0HA7ucJWxKZe6vBvy
