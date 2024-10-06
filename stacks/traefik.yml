@@ -7,11 +7,14 @@ services:
     image: traefik:${VERSION:-v2.11.3}
     command:
       # - --log.level=DEBUG
+      - --accesslog=true
+      - --accesslog.filepath=/var/log/traefik/access.log
       - --providers.docker
       - --providers.docker.network=traefik-net
       - --providers.docker.exposedByDefault=false
       - --providers.docker.swarmMode=true
       - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --entrypoints.https.http.middlewares=crowdsec-bouncer@docker
       - --entrypoints.https.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
       - --entrypoints.https.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
       - --entrypoints.https.address=:443
@@ -24,7 +27,13 @@ services:
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
       - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --api.dashboard=${API_DASHBOARD:-false}
+      - --api.insecure=false
+      - --api.dashboard=true # Enable Dashboard
+      - --api.debug=true
+      - --entryPoints.traefik.address=:8081 # Move dashboard to port 8081
     volumes:
+      - ${VOLUME_PATH}logs:/var/log/traefik/
       - ${VOLUME_PATH}letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
@@ -32,9 +41,21 @@ services:
       - {target: 443, published: 443, mode: host, protocol: tcp}
     deploy:
       mode: ${MODE:-replicated}
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.traefik.entrypoints=https
+        - traefik.http.routers.traefik.middlewares=crowdsec-bouncer
+        - traefik.http.routers.dashboard.rule=Host(`${DOMAIN:-traefik.localhost}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+        - traefik.http.routers.dashboard.service=api@internal
+        - traefik.http.routers.dashboard.middlewares=auth
+        - traefik.http.services.traefik.loadbalancer.server.port=8081 # Updated service port to 8081
+        - traefik.http.services.dummy-svc.loadbalancer.server.port=8080
+        - traefik.http.middlewares.crowdsec-bouncer.forwardauth.address=http://crowdsec-bouncer:8080/api/v1/forwardAuth
+        - traefik.http.middlewares.crowdsec-bouncer.forwardauth.trustForwardHeader=true
 
 volumes:
   letsencrypt:
+  logs:
 
 networks:
   default:
