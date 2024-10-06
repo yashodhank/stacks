@@ -26,7 +26,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 
 # Configuration variables
-source_dir = '/mnt/glusterfs/stacks/'  # Directory containing the original Docker stack YAML files
+source_dir = '/mnt/glusterfs/stacks/stacks/'  # Directory containing the original Docker stack YAML files
 destination_dir = '/mnt/glusterfs/prod/'  # Directory to store processed stack files
 glusterfs_nodes = ['172.30.230.1', '172.30.230.2', '172.30.230.3']  # List of GlusterFS nodes
 glusterfs_base_path = '/data/gluster'  # Base path for GlusterFS volume on all nodes
