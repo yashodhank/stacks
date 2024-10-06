@@ -4,7 +4,7 @@ version: '3.8'
 
 services:
   traefik:
-    image: traefik:${VERSION:-v2}
+    image: traefik:${VERSION:-v3.1}
     command:
       - --log.level=DEBUG
       - --accesslog=true
@@ -12,7 +12,8 @@ services:
       - --providers.docker
       - --providers.docker.network=traefik-net
       - --providers.docker.exposedByDefault=false
-      - --providers.docker.swarmMode=true
+      # Swarm Provider for Traefik v3
+      - --providers.swarm=true
       - --providers.docker.endpoint=unix:///var/run/docker.sock
       - --entrypoints.traefik.address=:8081 # Move dashboard to port 8081
 #      - --entrypoints.https.http.middlewares=crowdsec-bouncer@docker
@@ -31,6 +32,10 @@ services:
       - --api.dashboard=${API_DASHBOARD:-false} # Enable Dashboard
       - --api.insecure=false
       - --api.debug=true
+      # DEV - use this for testing purposes or else you might get blocked - # CHANGE THIS
+      - --certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # PROD - use this if everything works fine - # CHANGE THIS
+      #- --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
     volumes:
       - ${VOLUME_PATH}logs:/var/log/traefik/
       - ${VOLUME_PATH}letsencrypt:/letsencrypt
@@ -42,7 +47,11 @@ services:
       - {target: 8081, published: 8081, mode: host, protocol: tcp} # For Traefik dashboard access
 
     deploy:
-      mode: ${MODE:-replicated}
+      mode: global
+      placement:
+        constraints:
+          - node.role==manager
+      # mode: ${MODE:-replicated}
       labels:
         - traefik.enable=true
         - traefik.http.routers.traefik.entrypoints=https
