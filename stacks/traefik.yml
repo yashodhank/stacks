@@ -14,6 +14,7 @@ services:
       - --providers.docker.exposedByDefault=false
       - --providers.docker.swarmMode=true
       - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --entryPoints.traefik.address=:8081 # Move dashboard to port 8081
       - --entrypoints.https.http.middlewares=crowdsec-bouncer@docker
       - --entrypoints.https.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
       - --entrypoints.https.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
@@ -27,11 +28,9 @@ services:
       - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
       - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@example.com}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      - --api.dashboard=${API_DASHBOARD:-false}
+      - --api.dashboard=${API_DASHBOARD:-false} # Enable Dashboard
       - --api.insecure=false
-      - --api.dashboard=true # Enable Dashboard
       - --api.debug=true
-      - --entryPoints.traefik.address=:8081 # Move dashboard to port 8081
     volumes:
       - ${VOLUME_PATH}logs:/var/log/traefik/
       - ${VOLUME_PATH}letsencrypt:/letsencrypt
