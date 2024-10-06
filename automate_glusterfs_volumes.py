@@ -8,21 +8,6 @@ directory, modifies the volume configurations to use GlusterFS, preserves
 existing comments and dynamic values, and writes the updated files to a
 destination directory.
 
-Key Features:
-- Preserves existing comments and dynamic values in the YAML files.
-- Modifies volume configurations to use GlusterFS with specified options.
-- Maintains the original structure and order of the YAML files.
-- Adds a comment block listing dynamic values found in the file.
-
-Usage:
-1. Configure the script by setting the variables in the "Configuration variables"
-   section (e.g., source_dir, destination_dir, glusterfs_nodes, etc.).
-2. Ensure that the required Python packages are installed:
-   - ruamel.yaml
-3. Run the script using Python 3:
-   python3 script.py
-4. Check the destination directory for the processed files and the log file for any messages or errors.
-
 Dependencies:
     Python 3.x
     ruamel.yaml (Install using pip3 install ruamel.yaml)
@@ -32,7 +17,6 @@ Author:
 
 Date:
     6th Oct 2024
-    
 """
 import os
 import re
@@ -86,6 +70,8 @@ def convert_volume_to_glusterfs(volume_name, volume_config):
     if not isinstance(driver_opts, CommentedMap):
         driver_opts = CommentedMap(driver_opts)
 
+    # Add necessary GlusterFS options
+    driver_opts['servers'] = ','.join(glusterfs_nodes)
     driver_opts['voluri'] = voluri
     driver_opts['replicate'] = '3'
     driver_opts['read-only'] = 'false'
