@@ -45,6 +45,7 @@ services:
         - traefik.http.routers.traefik.entrypoints=https
         - traefik.http.routers.traefik.rule=Host(`${DOMAIN:-traefik.localhost}`)
         - traefik.http.routers.traefik.service=api@internal
+        - traefik.http.services.traefik.loadbalancer.server.port=8080 # Fix missing port here
 
 volumes:
   letsencrypt:
