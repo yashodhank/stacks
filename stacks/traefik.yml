@@ -27,7 +27,10 @@ services:
       - --api.dashboard=${API_DASHBOARD:-true} # Enable Dashboard
       - --api.insecure=false
       - --api.debug=true
-      
+      # DEV - use this for testing purposes or else you might get blocked - # CHANGE THIS
+      #- --certificatesresolvers.le.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory
+      # PROD - use this if everything works fine - # CHANGE THIS
+      - --certificatesresolvers.le.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
     volumes:
       - ${VOLUME_PATH}letsencrypt:/letsencrypt
       - /var/run/docker.sock:/var/run/docker.sock:ro
