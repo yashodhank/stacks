@@ -37,7 +37,7 @@ services:
       - --api.debug=${API_DEBUG:-false}
     environment:
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL:-www.biso.work@gmail.com}
-      - CF_API_KEY=${CLOUDFLARE_API_KEY?Variable not set}
+      - CF_DNS_API_TOKEN=${CLOUDFLARE_API_KEY?Variable not set}
     volumes:
       - ${VOLUME_PATH}letsencrypt:/letsencrypt
       - ${VOLUME_PATH}logs:/var/log/traefik/
