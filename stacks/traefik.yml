@@ -12,12 +12,12 @@ services:
       - --providers.docker.exposedByDefault=false
       - --providers.docker.swarmMode=true
       - --providers.docker.endpoint=unix:///var/run/docker.sock
-      - --entrypoints.https.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
-      - --entrypoints.https.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
+      - --entrypoints.https.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1/8,10.0.0.0/8}
+      - --entrypoints.https.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1/8,10.0.0.0/8}
       - --entrypoints.https.address=:443
       - --entrypoints.http.address=:80
-      - --entrypoints.http.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
-      - --entrypoints.http.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1}
+      - --entrypoints.http.proxyProtocol.trustedIPs=${TRUSTED_IPS:-127.0.0.1/8,10.0.0.0/8}
+      - --entrypoints.http.forwardedHeaders.trustedIPs=${TRUSTED_IPS:-127.0.0.1/8,10.0.0.0/8}
       - --entrypoints.http.http.redirections.entryPoint.to=https
       - --entrypoints.http.http.redirections.entryPoint.scheme=https
       - --entrypoints.http.http.redirections.entrypoint.permanent=true
