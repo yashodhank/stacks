@@ -6,8 +6,10 @@ services:
   crowdsec:
     image: crowdsecurity/crowdsec:${VERSION:-v1.6.1-2}
     environment:
+      - GID=${GID-1000}
       - COLLECTIONS=${COLLECTIONS:-crowdsecurity/traefik}
       - CUSTOM_HOSTNAME=${CUSTOM_HOSTNAME:-crowdsec}
+    command: ["/bin/bash", "-c", "cscli hub update && cscli collections install crowdsecurity/traefik && cscli parsers install crowdsecurity/traefik-logs && cscli parsers install crowdsecurity/http-logs && cscli machines add --password 'test' && crowdsec -c /etc/crowdsec/config.yaml"]
     volumes:
       - ${VOLUME_PATH}config:/etc/crowdsec
       - ${VOLUME_PATH}data:/var/lib/crowdsec/data/
@@ -19,7 +21,8 @@ services:
   crowdsec-bouncer:
     image: fbonalair/traefik-crowdsec-bouncer:latest
     environment:
-      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
+      - PORT=8083
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY:-nQfJinrUuzNNRDZ1jSD3aUi/rU6fv6n02BXLZMLQzVs}
       - CROWDSEC_AGENT_HOST=crowdsec:8080
     networks:
       - traefik
