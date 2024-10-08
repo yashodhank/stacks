@@ -71,7 +71,7 @@ def convert_volume_to_glusterfs(volume_name, volume_config):
         driver_opts = CommentedMap(driver_opts)
 
     # Add necessary GlusterFS options
-    driver_opts['servers'] = ','.join(glusterfs_nodes)
+    # driver_opts['servers'] = ','.join(glusterfs_nodes)
     driver_opts['voluri'] = voluri
     driver_opts['replicate'] = '3'
     driver_opts['read-only'] = 'false'
