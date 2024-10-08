@@ -1,10 +1,11 @@
+# DOMAIN= ZTNCUI_PASSWD=
 version: '3.7'
 
 services:
   ztncui:
     container_name: zerotier
-    hostname: zerotier
-    domainname: nhu.local
+    hostname: zerotier-admin
+    domainname: ${DOMAIN}
     image: keynetworks/ztncui:${VERSION:-latest}
     restart: always
     ports:
@@ -14,14 +15,14 @@ services:
     deploy:
       labels:
         - "traefik.port=3443"
-        - "traefik.frontend.rule=Host:${DOMAIN:-zerotier.nhu.local}"
+        - "traefik.frontend.rule=Host:${DOMAIN:-zerotier.local}"
         - "traefik.enable=true"
         - "docker-volume-backup.stop-during-backup=true"
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
         reservations:
-          memory: 256M
+          memory: 512M
     environment:
       - HTTPS_PORT=${HTTPS_PORT:-3443}
       - ZTNCUI_PASSWD=${ZTNCUI_PASSWD:-admin}
