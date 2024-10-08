@@ -1,4 +1,4 @@
-# DOMAIN=example.com docker stack deploy -c crowdsec.yml crowdsec
+# DOMAIN=example.com CROWDSEC_BOUNCER_API_KEY=key COLLECTIONS=crowdsecurity/traefik docker stack deploy -c crowdsec.yml crowdsec
 
 version: '3.8'
 
