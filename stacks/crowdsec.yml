@@ -4,12 +4,12 @@ version: '3.8'
 
 services:
   crowdsec:
-    image: crowdsecurity/crowdsec:${VERSION:-v1.6.1-2}
+    image: crowdsecurity/crowdsec:${VERSION:-latest}
     environment:
       - GID=${GID-1000}
-      - COLLECTIONS=${COLLECTIONS:-crowdsecurity/traefik}
+      - COLLECTIONS=${COLLECTIONS:-crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/whitelist-good-actors crowdsecurity/iptables crowdsecurity/linux crowdsecurity/sshd}
       - CUSTOM_HOSTNAME=${CUSTOM_HOSTNAME:-crowdsec}
-    command: ["/bin/bash", "-c", "cscli hub update && cscli collections install crowdsecurity/traefik && cscli parsers install crowdsecurity/traefik-logs && cscli parsers install crowdsecurity/http-logs && cscli machines add --password 'test' && crowdsec -c /etc/crowdsec/config.yaml"]
+    command: ["/bin/bash", "-c", "cscli hub update && cscli parsers install crowdsecurity/traefik-logs && cscli parsers install crowdsecurity/http-logs && cscli machines add --password 'test' && crowdsec -c /etc/crowdsec/config.yaml"]
     volumes:
       - ${VOLUME_PATH}config:/etc/crowdsec
       - ${VOLUME_PATH}data:/var/lib/crowdsec/data/
